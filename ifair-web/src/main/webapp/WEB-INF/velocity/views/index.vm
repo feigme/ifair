@@ -1,0 +1,6 @@
+<html>
+<body>
+<h2>Hello World! Velocity</h2>
+<a href="$!{oauth2Domain}/oauth2/login">登录</a>
+</body>
+</html>

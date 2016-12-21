@@ -37,7 +37,8 @@ public class AuthzController {
 
 	public static final Logger log = LoggerFactory.getLogger(AuthzController.class);
 
-	private Map<String, Object> cache = Maps.newHashMap();
+	private static final Map<String, Object> cache = Maps.newHashMap();
+	private static final Map<String, Object> authorizeCache = Maps.newHashMap();
 
 	/*
 	 * * 构建OAuth2授权请求 [需要client_id与redirect_uri绝对地址]
@@ -99,7 +100,9 @@ public class AuthzController {
 			if (request.getParameter("action") == null || !request.getParameter("action").equalsIgnoreCase("authorize")) {
 				// 到申请用户同意授权页
 				// TODO 判断用户是否已经授权
-				return "views/oauth2/authorize";
+				if (!(Boolean) authorizeCache.get(request.getParameter("username"))){
+					return "views/oauth2/authorize";
+				}
 			}
 			// 生成授权码 UUIDValueGenerator OR MD5Generator
 			String authorizationCode = new OAuthIssuerImpl(new MD5Generator()).authorizationCode();
@@ -145,7 +148,7 @@ public class AuthzController {
 		}
 
 		// 已登录
-		if (cache.get(name)!=null){
+		if ((Boolean) cache.get(name)) {
 			return true;
 		}
 

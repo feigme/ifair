@@ -137,10 +137,6 @@ public class AuthzController {
 	 * @return
 	 */
 	private boolean validateOAuth2Pwd(HttpServletRequest request) {
-		if ("get".equalsIgnoreCase(request.getMethod())) {
-			return false;
-		}
-
 		String name = request.getParameter("username");
 		String pwd = request.getParameter("password");
 		if (StringUtils.isEmpty(name) || StringUtils.isEmpty(pwd)) {
@@ -150,6 +146,10 @@ public class AuthzController {
 		// 已登录
 		if (cache.get(name) != null) {
 			return true;
+		}
+
+		if ("get".equalsIgnoreCase(request.getMethod())) {
+			return false;
 		}
 
 		try {

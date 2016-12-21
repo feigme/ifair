@@ -1,6 +1,5 @@
 package com.ifair.oauth2.oltu.web.controller;
 
-import com.google.common.collect.Maps;
 import com.ifair.oauth2.oltu.model.OauthClient;
 import com.ifair.oauth2.oltu.service.OauthClientService;
 import org.apache.commons.lang.StringUtils;
@@ -24,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * 授权控制器
@@ -36,10 +34,7 @@ import java.util.Map;
 public class AuthzController {
 
 	public static final Logger log = LoggerFactory.getLogger(AuthzController.class);
-
-	public static final Map<String, Object> cache = Maps.newHashMap();
-	public static final Map<String, Object> authorizeCache = Maps.newHashMap();
-
+	
 	/*
 	 * * 构建OAuth2授权请求 [需要client_id与redirect_uri绝对地址]
 	 * 
@@ -90,19 +85,19 @@ public class AuthzController {
 			model.addAttribute("redirect_uri", oauthRequest.getRedirectURI());
 			model.addAttribute("scope", oauthRequest.getScopes());
 
-			// 用户登录
-			if (!validateOAuth2Pwd(request)) {
-				// 登录失败跳转到登陆页
-				return "views/oauth2/login";
+			if (session.getAttribute("USER_SESSION_KEY") == null) {
+				// 用户登录
+				if (!validateOAuth2Pwd(request)) {
+					// 登录失败跳转到登陆页
+					return "views/oauth2/login";
+				}
 			}
 
 			// 判断此次请求是否是用户授权
 			if (request.getParameter("action") == null || !request.getParameter("action").equalsIgnoreCase("authorize")) {
 				// 到申请用户同意授权页
 				// TODO 判断用户是否已经授权
-				if (authorizeCache.get(request.getParameter("username")) == null) {
-					return "views/oauth2/authorize";
-				}
+				return "views/oauth2/authorize";
 			}
 			// 生成授权码 UUIDValueGenerator OR MD5Generator
 			String authorizationCode = new OAuthIssuerImpl(new MD5Generator()).authorizationCode();
@@ -137,25 +132,20 @@ public class AuthzController {
 	 * @return
 	 */
 	private boolean validateOAuth2Pwd(HttpServletRequest request) {
+		if ("get".equalsIgnoreCase(request.getMethod())) {
+			return false;
+		}
+
 		String name = request.getParameter("username");
 		String pwd = request.getParameter("password");
 		if (StringUtils.isEmpty(name) || StringUtils.isEmpty(pwd)) {
 			return false;
 		}
 
-		// 已登录
-		if (cache.get(name) != null) {
-			return true;
-		}
-
-		if ("get".equalsIgnoreCase(request.getMethod())) {
-			return false;
-		}
-
 		try {
 			if (name.equalsIgnoreCase("test") && pwd.equalsIgnoreCase("123456")) {
 				// 登录成功
-				cache.put(name, true);
+				request.getSession().setAttribute("USER_SESSION_KEY", name);
 				return true;
 			}
 			return false;

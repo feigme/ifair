@@ -1,6 +1,6 @@
 <html>
 <body>
 <h2>Hello World! Velocity</h2>
-<a href="//login">登录</a>
+<a href="/login">登录</a>
 </body>
 </html>

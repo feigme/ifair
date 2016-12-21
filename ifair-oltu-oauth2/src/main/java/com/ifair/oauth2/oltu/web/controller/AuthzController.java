@@ -37,8 +37,8 @@ public class AuthzController {
 
 	public static final Logger log = LoggerFactory.getLogger(AuthzController.class);
 
-	private static final Map<String, Object> cache = Maps.newHashMap();
-	private static final Map<String, Object> authorizeCache = Maps.newHashMap();
+	public static final Map<String, Object> cache = Maps.newHashMap();
+	public static final Map<String, Object> authorizeCache = Maps.newHashMap();
 
 	/*
 	 * * 构建OAuth2授权请求 [需要client_id与redirect_uri绝对地址]

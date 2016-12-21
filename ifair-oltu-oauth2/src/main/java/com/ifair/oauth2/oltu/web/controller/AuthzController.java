@@ -100,7 +100,7 @@ public class AuthzController {
 			if (request.getParameter("action") == null || !request.getParameter("action").equalsIgnoreCase("authorize")) {
 				// 到申请用户同意授权页
 				// TODO 判断用户是否已经授权
-				if (!(Boolean) authorizeCache.get(request.getParameter("username"))){
+				if (authorizeCache.get(request.getParameter("username")) == null) {
 					return "views/oauth2/authorize";
 				}
 			}
@@ -148,7 +148,7 @@ public class AuthzController {
 		}
 
 		// 已登录
-		if ((Boolean) cache.get(name)) {
+		if (cache.get(name) != null) {
 			return true;
 		}
 

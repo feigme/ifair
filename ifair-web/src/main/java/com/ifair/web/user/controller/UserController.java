@@ -1,5 +1,7 @@
 package com.ifair.web.user.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthBearerClientRequest;
@@ -49,6 +51,12 @@ public class UserController {
         return "redirect:" + oAuthClientRequest.getLocationUri();
     }
 
+    @RequestMapping("/logout")
+    public String logout(HttpServletRequest request) {
+        request.getSession().invalidate();
+        return "redirect:/index";
+    }
+
     @RequestMapping("/oauth_callback")
     public String userInfo(HttpServletRequest request) throws Exception{
         OAuthAuthzResponse oauthAuthzResponse = OAuthAuthzResponse.oauthCodeAuthzResponse(request);
@@ -73,7 +81,10 @@ public class UserController {
         String resBody = resourceResponse.getBody();
         log.info("accessToken: " + accessToken + " refreshToken: " + refreshToken + " expiresIn: " + expiresIn + " resBody: " + resBody);
 
-        return "redirect:" + oauthClientRequest.getLocationUri();
+        JSONObject jsonObject = JSON.parseObject(resBody);
+        request.getSession().setAttribute("userName", jsonObject.get("name"));
+
+        return "redirect:" + webDomain + "/index";
     }
 
 }

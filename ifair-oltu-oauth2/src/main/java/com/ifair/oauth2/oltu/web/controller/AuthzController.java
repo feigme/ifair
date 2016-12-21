@@ -1,5 +1,6 @@
 package com.ifair.oauth2.oltu.web.controller;
 
+import com.google.common.collect.Maps;
 import com.ifair.oauth2.oltu.model.OauthClient;
 import com.ifair.oauth2.oltu.service.OauthClientService;
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * 授权控制器
@@ -34,6 +36,8 @@ import java.io.IOException;
 public class AuthzController {
 
 	public static final Logger log = LoggerFactory.getLogger(AuthzController.class);
+
+	private Map<String, Object> cache = Maps.newHashMap();
 
 	/*
 	 * * 构建OAuth2授权请求 [需要client_id与redirect_uri绝对地址]
@@ -84,14 +88,13 @@ public class AuthzController {
 			model.addAttribute("client_id", oauthRequest.getClientId());
 			model.addAttribute("redirect_uri", oauthRequest.getRedirectURI());
 			model.addAttribute("scope", oauthRequest.getScopes());
-			// 验证用户是否已登录
-			if (session.getAttribute("MEMBER_SESSION_KEY") == null) {
-				// 用户登录
-				if (!validateOAuth2Pwd(request)) {
-					// 登录失败跳转到登陆页
-					return "views/oauth2/login";
-				}
+
+			// 用户登录
+			if (!validateOAuth2Pwd(request)) {
+				// 登录失败跳转到登陆页
+				return "views/oauth2/login";
 			}
+
 			// 判断此次请求是否是用户授权
 			if (request.getParameter("action") == null || !request.getParameter("action").equalsIgnoreCase("authorize")) {
 				// 到申请用户同意授权页
@@ -134,15 +137,22 @@ public class AuthzController {
 		if ("get".equalsIgnoreCase(request.getMethod())) {
 			return false;
 		}
+
 		String name = request.getParameter("username");
 		String pwd = request.getParameter("password");
 		if (StringUtils.isEmpty(name) || StringUtils.isEmpty(pwd)) {
 			return false;
 		}
+
+		// 已登录
+		if (cache.get(name)!=null){
+			return true;
+		}
+
 		try {
 			if (name.equalsIgnoreCase("test") && pwd.equalsIgnoreCase("123456")) {
 				// 登录成功
-				request.getSession().setAttribute("MEMBER_SESSION_KEY", "test");
+				cache.put(name, true);
 				return true;
 			}
 			return false;

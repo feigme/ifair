@@ -47,7 +47,7 @@ public class ResourceController {
 			}
 			// 获得用户名
 			Map<String, Object> map = new HashMap();
-			map.put("name", request.getSession().getAttribute("USER_SESSION_KEY"));
+			map.put("name", "test");
 			map.put("id", 1L);
 			map.put("age", 20);
 			return JSON.toJSONString(map);

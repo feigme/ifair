@@ -178,7 +178,7 @@ public class AuthzController {
 			OauthUser oauthUser = oauthClientService.loginCheck(name, pwd);
 			if (oauthUser!=null) {
 				// 登录成功
-				request.getSession().setAttribute("USER_SESSION_KEY", name);
+				request.getSession().setAttribute("USER_SESSION_KEY", oauthUser);
 				return true;
 			}
 			return false;

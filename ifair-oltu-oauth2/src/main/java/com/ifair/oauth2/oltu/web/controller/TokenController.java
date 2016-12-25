@@ -34,6 +34,8 @@ public class TokenController {
 
 	public static final Logger log = LoggerFactory.getLogger(TokenController.class);
 
+	private OauthClientService oauthClientService = new OauthClientService();
+
 	/**
 	 * 认证服务器申请令牌(AccessToken) [验证client_id、client_secret、auth code的正确性或更新令牌 refresh_token]
 	 * 
@@ -49,40 +51,55 @@ public class TokenController {
 		try {
 			// 构建oauth2请求
 			OAuthTokenRequest oauthRequest = new OAuthTokenRequest(request);
-			// 验证redirecturl格式是否合法 (8080端口测试)
-			if (false) {
-				OAuthResponse oauthResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED).setError(OAuthError.CodeResponse.INVALID_REQUEST).setErrorDescription(OAuthError.OAUTH_ERROR_URI).buildJSONMessage();
-
+			// 验证redirecturl格式是否合法
+			if (!validateRedirectionURI(oauthRequest)) {
+				OAuthResponse oauthResponse = OAuthASResponse
+						.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+						.setError(OAuthError.CodeResponse.INVALID_REQUEST)
+						.setErrorDescription(OAuthError.OAUTH_ERROR_URI)
+						.buildJSONMessage();
 				return JSON.toJSONString(oauthResponse.getBody());
 			}
 			// 验证appkey是否正确
 			if (!validateOAuth2AppKey(oauthRequest)) {
-				OAuthResponse oauthResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED).setError(OAuthError.CodeResponse.ACCESS_DENIED).setErrorDescription(OAuthError.CodeResponse.UNAUTHORIZED_CLIENT).buildJSONMessage();
+				OAuthResponse oauthResponse = OAuthASResponse
+						.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+						.setError(OAuthError.CodeResponse.ACCESS_DENIED)
+						.setErrorDescription(OAuthError.CodeResponse.UNAUTHORIZED_CLIENT)
+						.buildJSONMessage();
 				return JSON.toJSONString(oauthResponse.getBody());
 			}
 			// 验证客户端安全AppSecret是否正确
 			if (!validateOAuth2AppSecret(oauthRequest)) {
-				OAuthResponse oauthResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED).setError(OAuthError.TokenResponse.UNAUTHORIZED_CLIENT).setErrorDescription("INVALID_CLIENT_SECRET").buildJSONMessage();
+				OAuthResponse oauthResponse = OAuthASResponse
+						.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+						.setError(OAuthError.TokenResponse.UNAUTHORIZED_CLIENT)
+						.setErrorDescription("INVALID_CLIENT_SECRET")
+						.buildJSONMessage();
 				return JSON.toJSONString(oauthResponse.getBody());
 			}
+
 			String authzCode = oauthRequest.getCode();
-			// 验证AUTHORIZATION_CODE , 其他的还有PASSWORD 或 REFRESH_TOKEN (考虑到更新令牌的问题，在做修改)
-			// if (GrantType.AUTHORIZATION_CODE.name().equalsIgnoreCase(oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE))) {
-			// //if (cache.get(authzCode) == null) {
-			// OAuthResponse oauthResponse = OAuthASResponse
-			// .errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
-			// .setError(OAuthError.TokenResponse.INVALID_GRANT)
-			// .setErrorDescription("INVALID_CLIENT_GRANT")
-			// .buildJSONMessage();
-			// return JSON.toJSONString(oauthResponse.getBody());
-			// //}
-			// }
+
+			// 验证AUTHORIZATION_CODE, 其他的还有PASSWORD 或 REFRESH_TOKEN (考虑到更新令牌的问题，在做修改)
+			if (GrantType.AUTHORIZATION_CODE.name().equalsIgnoreCase(oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE))) {
+				if (oauthClientService.get(authzCode) == null) {
+					OAuthResponse oauthResponse = OAuthASResponse
+							.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+							.setError(OAuthError.TokenResponse.INVALID_GRANT)
+							.setErrorDescription("INVALID_CLIENT_GRANT")
+							.buildJSONMessage();
+					return JSON.toJSONString(oauthResponse.getBody());
+				}
+			}
 			// 生成token
 			final String accessToken = oauthIssuerImpl.accessToken();
 			String refreshToken = oauthIssuerImpl.refreshToken();
 			log.info("accessToken : " + accessToken + "  refreshToken: " + refreshToken);
+
 			// 清除授权码 确保一个code只能使用一次
-			// cache.evict(authzCode);
+			oauthClientService.evict(authzCode);
+
 			// 构建oauth2授权返回信息
 			OAuthResponse oauthResponse = OAuthASResponse
 					.tokenResponse(HttpServletResponse.SC_OK)
@@ -174,7 +191,7 @@ public class TokenController {
 	 * @return
 	 */
 	public boolean validateOAuth2AppKey(OAuthTokenRequest oauthRequest) {
-		return new OauthClientService().findByClientId(oauthRequest.getClientId()) != null;
+		return oauthClientService.findByClientId(oauthRequest.getClientId()) != null;
 	}
 
 	/**
@@ -184,6 +201,11 @@ public class TokenController {
 	 * @return
 	 */
 	public boolean validateOAuth2AppSecret(OAuthTokenRequest oauthRequest) {
-		return new OauthClientService().findByClientId(oauthRequest.getClientId()).getClientSecret().equals(oauthRequest.getClientSecret());
+		return oauthClientService.findByClientId(oauthRequest.getClientId()).getClientSecret().equals(oauthRequest.getClientSecret());
+	}
+
+	private boolean validateRedirectionURI(OAuthTokenRequest tokenRequest) {
+		// TODO
+		return true;
 	}
 }

@@ -1,6 +1,7 @@
 package com.ifair.oauth2.oltu.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.ifair.oauth2.oltu.service.OauthClientService;
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
@@ -31,6 +32,8 @@ public class ResourceController {
 
 	private static Logger logger = LoggerFactory.getLogger(ResourceController.class);
 
+	private OauthClientService oauthClientService = new OauthClientService();
+
 	@RequestMapping(value = "/get_resource", produces = "application/json;charset=utf-8")
 	@ResponseBody
 	public String get_resource(HttpServletRequest request, HttpServletResponse response) throws IOException, OAuthSystemException {
@@ -41,10 +44,18 @@ public class ResourceController {
 			String accessToken = oauthRequest.getAccessToken();
 			// 验证accesstoken是否存在或过期
 			if (accessToken == null) {
-				OAuthResponse oauthResponse = OAuthRSResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED).setRealm("RESOURCE_SERVER_NAME").setError(OAuthError.ResourceResponse.INVALID_TOKEN).setErrorDescription(OAuthError.ResourceResponse.EXPIRED_TOKEN).buildHeaderMessage();
+				OAuthResponse oauthResponse = OAuthRSResponse
+						.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+						.setRealm("RESOURCE_SERVER_NAME")
+						.setError(OAuthError.ResourceResponse.INVALID_TOKEN)
+						.setErrorDescription(OAuthError.ResourceResponse.EXPIRED_TOKEN)
+						.buildHeaderMessage();
 				response.addDateHeader(OAuth.HeaderType.WWW_AUTHENTICATE, Long.parseLong(oauthResponse.getHeader(OAuth.HeaderType.WWW_AUTHENTICATE)));
 				return "";
 			}
+
+			oauthClientService.get(accessToken);
+
 			// 获得用户名
 			Map<String, Object> map = new HashMap();
 			map.put("name", "test");

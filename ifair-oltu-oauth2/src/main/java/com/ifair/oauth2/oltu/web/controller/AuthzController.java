@@ -1,7 +1,10 @@
 package com.ifair.oauth2.oltu.web.controller;
 
+import com.ifair.oauth2.oltu.model.OauthAuthorize;
 import com.ifair.oauth2.oltu.model.OauthClient;
+import com.ifair.oauth2.oltu.model.OauthUser;
 import com.ifair.oauth2.oltu.service.OauthClientService;
+import com.ifair.oauth2.oltu.utils.DesCbcSecurity;
 import org.apache.commons.lang.StringUtils;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
@@ -10,7 +13,6 @@ import org.apache.oltu.oauth2.as.response.OAuthASResponse;
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
-import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +21,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 /**
  * 授权控制器
@@ -34,7 +36,11 @@ import java.io.IOException;
 public class AuthzController {
 
 	public static final Logger log = LoggerFactory.getLogger(AuthzController.class);
-	
+
+	private OauthClientService oauthClientService = new OauthClientService();
+
+	public static final String COOKIE_SESSION_KEY = "csid";
+
 	/*
 	 * * 构建OAuth2授权请求 [需要client_id与redirect_uri绝对地址]
 	 * 
@@ -55,7 +61,7 @@ public class AuthzController {
 	 * @test http://localhost:8080/oauth2/authorize?client_id=fbed1d1b4b1449daa4bc49397cbe2350&response_type=code&redirect_uri=http://localhost:8080/client/oauth_callback
 	 */
 	@RequestMapping(value = "/authorize")
-	public String authorize(HttpServletRequest request, HttpSession session, Model model) throws OAuthSystemException, IOException {
+	public String authorize(HttpServletRequest request, HttpSession session, Model model) throws Exception {
 		try {
 			// 构建OAuth请求
 			OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(request);
@@ -63,29 +69,47 @@ public class AuthzController {
 			// 验证redirecturl格式是否合法
 			if (!validateRedirectionURI(oauthRequest)) {
 				// @formatter:off
-				OAuthResponse oauthResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED).setError(OAuthError.CodeResponse.INVALID_REQUEST).setErrorDescription(OAuthError.OAUTH_ERROR_URI).buildJSONMessage();
+				OAuthResponse oauthResponse = OAuthASResponse
+						.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+						.setError(OAuthError.CodeResponse.INVALID_REQUEST)
+						.setErrorDescription(OAuthError.OAUTH_ERROR_URI)
+						.buildJSONMessage();
 				// @formatter:on
 				log.error("oauthRequest.getRedirectURI() : " + oauthRequest.getRedirectURI() + " oauthResponse.getBody() : " + oauthResponse.getBody());
 				model.addAttribute("errorMsg", oauthResponse.getBody());
 				return "views/oauth2/error";
 			}
 
+			// 查询客户端Appkey应用的信息
+			OauthClient oauthClient =  oauthClientService.findByClientId(oauthRequest.getClientId());
+
 			// 验证appkey是否正确
-			if (!validateOAuth2AppKey(oauthRequest)) {
-				OAuthResponse oauthResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED).setError(OAuthError.CodeResponse.ACCESS_DENIED).setErrorDescription(OAuthError.CodeResponse.UNAUTHORIZED_CLIENT).buildJSONMessage();
+			if (!validateOAuth2AppKey(oauthClient)) {
+				OAuthResponse oauthResponse = OAuthASResponse
+						.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+						.setError(OAuthError.CodeResponse.ACCESS_DENIED)
+						.setErrorDescription(OAuthError.CodeResponse.UNAUTHORIZED_CLIENT)
+						.buildJSONMessage();
 				log.error("oauthRequest.getRedirectURI() : " + oauthRequest.getRedirectURI() + " oauthResponse.getBody() : " + oauthResponse.getBody());
 				model.addAttribute("errorMsg", oauthResponse.getBody());
 				return "views/oauth2/error";
 			}
-			// 查询客户端Appkey应用的信息
-			OauthClient oauthClient =  new OauthClientService().findByClientId(oauthRequest.getClientId());
+
 			model.addAttribute("clientName", oauthClient.getClientName());
 			model.addAttribute("response_type", oauthRequest.getResponseType());
 			model.addAttribute("client_id", oauthRequest.getClientId());
 			model.addAttribute("redirect_uri", oauthRequest.getRedirectURI());
 			model.addAttribute("scope", oauthRequest.getScopes());
 
-			if (session.getAttribute("USER_SESSION_KEY") == null) {
+			// Session中的用户信息
+			OauthUser oauthUser = (OauthUser) session.getAttribute("USER_SESSION_KEY");
+			if (oauthUser == null) {
+				// 缓存中的用户信息
+				oauthUser = (OauthUser) getCacheBySessionId(request, "oauth_");
+			}
+
+			// 判断用户是否已登录
+			if (oauthUser == null) {
 				// 用户登录
 				if (!validateOAuth2Pwd(request)) {
 					// 登录失败跳转到登陆页
@@ -93,20 +117,28 @@ public class AuthzController {
 				}
 			}
 
-			// 判断此次请求是否是用户授权
-			if (request.getParameter("action") == null || !request.getParameter("action").equalsIgnoreCase("authorize")) {
-				// 到申请用户同意授权页
-				// TODO 判断用户是否已经授权
-				return "views/oauth2/authorize";
+			// 判断用户是否已经授权
+			OauthAuthorize oauthAuthorize = oauthClientService.findAuthorize(oauthClient, oauthUser);
+			if (oauthAuthorize == null) {
+				// 判断此次请求是否是用户授权
+				if (request.getParameter("action") != null && request.getParameter("action").equalsIgnoreCase("authorize")) {
+					// 保存授权信心
+					oauthClientService.authorize(oauthClient, oauthUser);
+				}else{
+					// 到申请用户同意授权页
+					return "views/oauth2/authorize";
+				}
 			}
+
 			// 生成授权码 UUIDValueGenerator OR MD5Generator
 			String authorizationCode = new OAuthIssuerImpl(new MD5Generator()).authorizationCode();
-			// 把授权码存入缓存
-			//cache.put(authorizationCode, DigestUtils.sha1Hex(oauthRequest.getClientId() + oauthRequest.getRedirectURI()));
+			// 更新授权码
+			oauthClientService.put(authorizationCode, true);
 			// 构建oauth2授权返回信息
 			OAuthResponse oauthResponse = OAuthASResponse.authorizationResponse(request, HttpServletResponse.SC_FOUND).setCode(authorizationCode).location(oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI)).buildQueryMessage();
 			// 申请令牌成功重定向到客户端页
 			return "redirect:" + oauthResponse.getLocationUri();
+
 		} catch (OAuthProblemException ex) {
 			OAuthResponse oauthResponse = OAuthResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED).error(ex).buildJSONMessage();
 			log.error("oauthRequest.getRedirectURI() : " + ex.getRedirectUri() + " oauthResponse.getBody() : " + oauthResponse.getBody());
@@ -127,7 +159,7 @@ public class AuthzController {
 
 	/**
 	 * 用户登录
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -143,7 +175,8 @@ public class AuthzController {
 		}
 
 		try {
-			if (name.equalsIgnoreCase("test") && pwd.equalsIgnoreCase("123456")) {
+			OauthUser oauthUser = oauthClientService.loginCheck(name, pwd);
+			if (oauthUser!=null) {
 				// 登录成功
 				request.getSession().setAttribute("USER_SESSION_KEY", name);
 				return true;
@@ -158,11 +191,37 @@ public class AuthzController {
 	/**
 	 * 验证ClientID 是否正确
 	 * 
-	 * @param oauthRequest
+	 * @param oauthClient
 	 * @return
 	 */
-	public boolean validateOAuth2AppKey(OAuthAuthzRequest oauthRequest) {
-		return new OauthClientService().findByClientId(oauthRequest.getClientId()) != null;
+	public boolean validateOAuth2AppKey(OauthClient oauthClient) {
+		return oauthClient != null;
+	}
+
+	public Object getCacheBySessionId(HttpServletRequest req, String key) {
+		Cookie[] cookies = req.getCookies();
+		if (cookies == null) {
+			log.error("[] cookies is null");
+			return null;
+		}
+		String sessionId = null;
+		for (int i = 0; i < cookies.length; i++) {
+			if (cookies[i].getName().equals(COOKIE_SESSION_KEY)) {
+				sessionId = cookies[i].getValue();
+				break;
+			}
+		}
+		if (sessionId == null) {
+			return null;
+		} else {
+			try {
+				String md5String = null;
+				md5String = DesCbcSecurity.md5(key + sessionId);
+				return oauthClientService.get(md5String);
+			} catch (Exception e) {
+				return null;
+			}
+		}
 	}
 
 }

@@ -135,7 +135,7 @@ public class AuthzController {
 			// 生成授权码 UUIDValueGenerator OR MD5Generator
 			String authorizationCode = new OAuthIssuerImpl(new MD5Generator()).authorizationCode();
 			// 更新授权码
-			oauthClientService.put(authorizationCode, true);
+			oauthClientService.put(authorizationCode, oauthRequest.getClientId());
 			// 构建oauth2授权返回信息
 			OAuthResponse oauthResponse = OAuthASResponse.authorizationResponse(request, HttpServletResponse.SC_FOUND).setCode(authorizationCode).location(oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI)).buildQueryMessage();
 			// 申请令牌成功重定向到客户端页

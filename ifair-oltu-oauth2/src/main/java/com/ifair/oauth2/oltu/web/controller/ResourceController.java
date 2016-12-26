@@ -56,7 +56,7 @@ public class ResourceController {
 
 			oauthClientService.get(accessToken);
 
-			// 获得用户名
+			// TODO 获得用户名
 			Map<String, Object> map = new HashMap();
 			map.put("name", "test");
 			map.put("id", 1L);

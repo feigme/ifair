@@ -83,7 +83,8 @@ public class TokenController {
 
 			// 验证AUTHORIZATION_CODE, 其他的还有PASSWORD 或 REFRESH_TOKEN (考虑到更新令牌的问题，在做修改)
 			if (GrantType.AUTHORIZATION_CODE.name().equalsIgnoreCase(oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE))) {
-				if (oauthClientService.get(authzCode) == null) {
+				// 是否需要验证 code是否属于clientId
+				if (oauthClientService.get(authzCode) == null || !oauthClientService.get(authzCode).equals(oauthRequest.getClientId())) {
 					OAuthResponse oauthResponse = OAuthASResponse
 							.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
 							.setError(OAuthError.TokenResponse.INVALID_GRANT)

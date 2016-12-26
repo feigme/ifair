@@ -34,8 +34,8 @@ public class UserController {
     @Value("${oauth2.client.secret}")
     private String oauth2ClientSecret;
 
-    @Value("${web.domain}")
-    private String webDomain;
+    @Value("${admin.domain}")
+    private String adminDomain;
 
 
     @RequestMapping("/login")
@@ -44,7 +44,7 @@ public class UserController {
                 .authorizationLocation(oauth2Domain + "/oauth2/authorize")
                 .setResponseType(OAuth.OAUTH_CODE)
                 .setClientId(oauth2ClientId)
-                .setRedirectURI(webDomain +"/oauth_callback")
+                .setRedirectURI(adminDomain +"/oauth_callback")
                 .setScope("read")
                 .buildQueryMessage();
         return "redirect:" + oAuthClientRequest.getLocationUri();
@@ -64,7 +64,7 @@ public class UserController {
                 .setGrantType(GrantType.AUTHORIZATION_CODE)
                 .setClientId(oauth2ClientId)
                 .setClientSecret(oauth2ClientSecret)
-                .setRedirectURI(webDomain + "/index")
+                .setRedirectURI(adminDomain + "/index")
                 .setCode(oauthAuthzResponse.getCode())
                 .buildQueryMessage();
         OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
@@ -83,7 +83,7 @@ public class UserController {
         JSONObject jsonObject = JSON.parseObject(resBody);
         request.getSession().setAttribute("userName", jsonObject.get("name"));
 
-        return "redirect:" + webDomain + "/index";
+        return "redirect:" + adminDomain + "/index";
     }
 
 }

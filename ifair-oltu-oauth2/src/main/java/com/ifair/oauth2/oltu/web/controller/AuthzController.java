@@ -184,7 +184,7 @@ public class AuthzController {
 
 				// 写cookie
 				String sessionId = OauthUtils.generateSessionId(request);
-				setCookies("sid", sessionId, true, 14, request, response);
+				setCookies(COOKIE_SESSION_KEY, sessionId, true, 14, request, response);
 				String md5String = DesCbcSecurity.md5("oauth_" + sessionId);
 				oauthClientService.put(md5String, oauthUser);
 

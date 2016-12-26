@@ -5,6 +5,7 @@ import com.ifair.oauth2.oltu.model.OauthClient;
 import com.ifair.oauth2.oltu.model.OauthUser;
 import com.ifair.oauth2.oltu.service.OauthClientService;
 import com.ifair.oauth2.oltu.utils.DesCbcSecurity;
+import com.ifair.oauth2.oltu.utils.OauthUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
@@ -61,7 +62,7 @@ public class AuthzController {
 	 * @test http://localhost:8080/oauth2/authorize?client_id=fbed1d1b4b1449daa4bc49397cbe2350&response_type=code&redirect_uri=http://localhost:8080/client/oauth_callback
 	 */
 	@RequestMapping(value = "/authorize")
-	public String authorize(HttpServletRequest request, HttpSession session, Model model) throws Exception {
+	public String authorize(HttpServletRequest request, HttpServletResponse response, HttpSession session, Model model) throws Exception {
 		try {
 			// 构建OAuth请求
 			OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(request);
@@ -111,7 +112,7 @@ public class AuthzController {
 			// 判断用户是否已登录
 			if (oauthUser == null) {
 				// 用户登录
-				if (!validateOAuth2Pwd(request)) {
+				if (!validateOAuth2Pwd(request, response)) {
 					// 登录失败跳转到登陆页
 					return "views/oauth2/login";
 				}
@@ -164,7 +165,7 @@ public class AuthzController {
 	 * @param request
 	 * @return
 	 */
-	private boolean validateOAuth2Pwd(HttpServletRequest request) {
+	private boolean validateOAuth2Pwd(HttpServletRequest request, HttpServletResponse response) {
 		if ("get".equalsIgnoreCase(request.getMethod())) {
 			return false;
 		}
@@ -180,6 +181,13 @@ public class AuthzController {
 			if (oauthUser != null) {
 				// 登录成功
 				request.getSession().setAttribute("USER_SESSION_KEY", oauthUser);
+
+				// 写cookie
+				String sessionId = OauthUtils.generateSessionId(request);
+				setCookies("sid", sessionId, true, 14, request, response);
+				String md5String = DesCbcSecurity.md5("oauth_" + sessionId);
+				oauthClientService.put(md5String, oauthUser);
+
 				return true;
 			}
 			return false;
@@ -195,11 +203,11 @@ public class AuthzController {
 	 * @param oauthClient
 	 * @return
 	 */
-	public boolean validateOAuth2AppKey(OauthClient oauthClient) {
+	private boolean validateOAuth2AppKey(OauthClient oauthClient) {
 		return oauthClient != null;
 	}
 
-	public Object getCacheBySessionId(HttpServletRequest req, String key) {
+	private Object getCacheBySessionId(HttpServletRequest req, String key) {
 		Cookie[] cookies = req.getCookies();
 		if (cookies == null) {
 			log.error("[] cookies is null");
@@ -223,6 +231,44 @@ public class AuthzController {
 				return null;
 			}
 		}
+	}
+
+	/**
+	 * 设置cookie
+	 *
+	 * @param key
+	 * @param value
+	 * @param maxAge
+	 * @param response
+	 * @param req
+	 * @param supportSubDomainSharing
+	 *            是否在所有的子域名中共享
+	 */
+	private void setCookies(String key, String value, int maxAge, HttpServletResponse response, HttpServletRequest req, boolean supportSubDomainSharing) {
+		// 写cookie
+		Cookie cookie = new Cookie(key, value);
+
+		if (supportSubDomainSharing) {
+			String domainName = req.getServerName();
+			if (domainName.indexOf("localhost") < 0 && domainName.indexOf("ywy") < 0) {
+				String domainNamePrefix = domainName.substring(domainName.indexOf("."), domainName.length());
+				// Specifies the domain within which this cookie should be presented.
+				cookie.setDomain(domainNamePrefix);
+			}
+		}
+		cookie.setPath("/");
+		// 生命周期
+		cookie.setMaxAge(maxAge);
+		response.addCookie(cookie);
+	}
+
+	private void setCookies(String key, String value, boolean rememberLogin, int rememberDays, HttpServletRequest req, HttpServletResponse resp) {
+		setCookies(key, value, 0, resp);
+		setCookies(key, value, rememberLogin ? 3600 * 24 * rememberDays : 3600 * 24, resp, req, true);
+	}
+	
+	private void setCookies(String key, String value, int maxAge, HttpServletResponse response) {
+		setCookies(key, value, maxAge, response, null, false);
 	}
 
 }

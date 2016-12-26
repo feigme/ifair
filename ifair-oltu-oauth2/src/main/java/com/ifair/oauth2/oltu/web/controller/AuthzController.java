@@ -115,6 +115,7 @@ public class AuthzController {
 					// 登录失败跳转到登陆页
 					return "views/oauth2/login";
 				}
+				oauthUser = (OauthUser) session.getAttribute("USER_SESSION_KEY");
 			}
 
 			// 判断用户是否已经授权
@@ -176,7 +177,7 @@ public class AuthzController {
 
 		try {
 			OauthUser oauthUser = oauthClientService.loginCheck(name, pwd);
-			if (oauthUser!=null) {
+			if (oauthUser != null) {
 				// 登录成功
 				request.getSession().setAttribute("USER_SESSION_KEY", oauthUser);
 				return true;

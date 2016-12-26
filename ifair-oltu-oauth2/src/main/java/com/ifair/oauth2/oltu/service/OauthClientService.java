@@ -48,6 +48,9 @@ public class OauthClientService {
 	 * 用户是否已经给这个客户授权
 	 */
 	public OauthAuthorize findAuthorize(OauthClient client, OauthUser user) {
+		if (client == null || user == null) {
+			return null;
+		}
 		for (OauthAuthorize authorize : authorizeList) {
 			if (authorize.getClientId() == client.getId() && authorize.getUserId() == user.getId()) {
 				return authorize;

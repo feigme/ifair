@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by feiying on 16/12/20.
@@ -51,10 +53,24 @@ public class UserController {
     }
 
     @RequestMapping("/logout")
-    public String logout(HttpServletRequest request) {
-        request.getSession().invalidate();
-        return "redirect:/index";
-    }
+	public String logout(HttpServletRequest request, HttpServletResponse response) {
+		request.getSession().invalidate();
+		Cookie[] cookies = request.getCookies();
+		for (Cookie cookie : cookies) {
+			setCookies(cookie.getName(), null, 0, response);
+		}
+		return "redirect:/index";
+	}
+    
+	private void setCookies(String key, String value, int maxAge, HttpServletResponse response) {
+		// 写cookie
+		Cookie cookie = new Cookie(key, value);
+
+		cookie.setPath("/");
+		// 生命周期
+		cookie.setMaxAge(maxAge);
+		response.addCookie(cookie);
+	}
 
     @RequestMapping("/oauth_callback")
     public String userInfo(HttpServletRequest request) throws Exception{

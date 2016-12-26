@@ -84,7 +84,7 @@ public class TokenController {
 			// 验证AUTHORIZATION_CODE, 其他的还有PASSWORD 或 REFRESH_TOKEN (考虑到更新令牌的问题，在做修改)
 			if (GrantType.AUTHORIZATION_CODE.name().equalsIgnoreCase(oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE))) {
 				// 是否需要验证 code是否属于clientId
-				if (oauthClientService.get(authzCode) == null || !oauthClientService.get(authzCode).equals(oauthRequest.getClientId())) {
+				if (oauthClientService.get(authzCode)==null || !oauthClientService.get(oauthRequest.getClientId()).equals(authzCode)) {
 					OAuthResponse oauthResponse = OAuthASResponse
 							.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
 							.setError(OAuthError.TokenResponse.INVALID_GRANT)
@@ -97,6 +97,7 @@ public class TokenController {
 			final String accessToken = oauthIssuerImpl.accessToken();
 			String refreshToken = oauthIssuerImpl.refreshToken();
 			log.info("accessToken : " + accessToken + "  refreshToken: " + refreshToken);
+			oauthClientService.put(accessToken, oauthClientService.get(authzCode));
 
 			// 清除授权码 确保一个code只能使用一次
 			oauthClientService.evict(authzCode);
@@ -192,7 +193,7 @@ public class TokenController {
 	 * @return
 	 */
 	public boolean validateOAuth2AppKey(OAuthTokenRequest oauthRequest) {
-		return oauthClientService.findByClientId(oauthRequest.getClientId()) != null;
+		return oauthClientService.findClientByClientId(oauthRequest.getClientId()) != null;
 	}
 
 	/**
@@ -202,7 +203,7 @@ public class TokenController {
 	 * @return
 	 */
 	public boolean validateOAuth2AppSecret(OAuthTokenRequest oauthRequest) {
-		return oauthClientService.findByClientId(oauthRequest.getClientId()).getClientSecret().equals(oauthRequest.getClientSecret());
+		return oauthClientService.findClientByClientId(oauthRequest.getClientId()).getClientSecret().equals(oauthRequest.getClientSecret());
 	}
 
 	private boolean validateRedirectionURI(OAuthTokenRequest tokenRequest) {

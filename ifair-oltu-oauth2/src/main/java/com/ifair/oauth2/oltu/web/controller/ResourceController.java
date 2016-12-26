@@ -1,6 +1,7 @@
 package com.ifair.oauth2.oltu.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.ifair.oauth2.oltu.model.OauthUser;
 import com.ifair.oauth2.oltu.service.OauthClientService;
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.error.OAuthError;
@@ -54,12 +55,12 @@ public class ResourceController {
 				return "";
 			}
 
-			oauthClientService.get(accessToken);
+			Long userId = (Long) oauthClientService.get(accessToken);
+			OauthUser oauthUser = oauthClientService.findUserById(userId);
 
-			// TODO 获得用户名
 			Map<String, Object> map = new HashMap();
-			map.put("name", "test");
-			map.put("id", 1L);
+			map.put("name", oauthUser.getUserName());
+			map.put("id", oauthUser.getId());
 			map.put("age", 20);
 			return JSON.toJSONString(map);
 		} catch (OAuthProblemException ex) {

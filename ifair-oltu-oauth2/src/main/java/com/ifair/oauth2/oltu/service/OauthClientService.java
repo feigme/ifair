@@ -35,10 +35,19 @@ public class OauthClientService {
 	 * @param clientId
 	 * @return
 	 */
-	public OauthClient findByClientId(String clientId) {
+	public OauthClient findClientByClientId(String clientId) {
 		for (OauthClient client : clientList) {
 			if (StringUtils.equals(clientId, client.getClientId())) {
 				return client;
+			}
+		}
+		return null;
+	}
+
+	public OauthUser findUserById(Long userId) {
+		for (OauthUser user: userList) {
+			if (userId.longValue() == user.getId()){
+				return user;
 			}
 		}
 		return null;

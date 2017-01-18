@@ -13,7 +13,6 @@
         <module>ifair-admin</module>
         <module>ifair-common</module>
         <module>ifair-oltu-oauth2</module>
-        <module>ifair-spring-oauth2</module>
     </modules>
 
     <properties>
@@ -126,6 +125,12 @@
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
                 <version>1.3.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.1</version>
             </dependency>
 
         </dependencies>

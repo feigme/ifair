@@ -155,11 +155,6 @@ public class AuthzController {
 		return true;
 	}
 
-	@RequestMapping(value = "/login", method = RequestMethod.GET)
-	public String login() {
-		return "views/oauth2/login";
-	}
-
 	/**
 	 * 用户登录
 	 *

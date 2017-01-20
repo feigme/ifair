@@ -68,8 +68,8 @@
 	</bean>
 
 	<bean id="httpClientFactory" class="org.springframework.http.client.SimpleClientHttpRequestFactory">
-		<property name="connectTimeout"  value="${connectTimeout}"/>
-		<property name="readTimeout"  value="${readTimeout}"/>
+		<property name="connectTimeout"  value="3000"/>
+		<property name="readTimeout"  value="3000"/>
 	</bean>
 
 	<!--RestTemplate-->

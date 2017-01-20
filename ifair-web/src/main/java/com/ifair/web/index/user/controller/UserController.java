@@ -1,10 +1,10 @@
-package com.ifair.web.user.controller;
+package com.ifair.web.index.user.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ifair.uic.client.UicClient;
 import com.ifair.uic.domain.UserDO;
-import com.ifair.web.user.command.RegisterCommand;
+import com.ifair.web.index.user.command.RegisterCommand;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;

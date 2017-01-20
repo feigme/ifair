@@ -3,7 +3,6 @@ package com.ifair.uic.client;
 import com.alibaba.fastjson.JSON;
 import com.ifair.base.BizResult;
 import com.ifair.uic.domain.UserDO;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -11,7 +10,6 @@ import javax.annotation.Resource;
 /**
  * Created by feiying on 17/1/19.
  */
-@Component
 public class UicClient {
 
 	private String uicDomain;

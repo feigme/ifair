@@ -6,6 +6,7 @@ import com.ifair.uic.domain.UserDO;
 import com.ifair.uic.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -25,7 +26,7 @@ public class UserRestController {
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
 	@ResponseBody
-	public String register(UserDO userDO) {
+	public String register(@RequestBody UserDO userDO) {
 		BizResult<Long> bizResult = new BizResult<>(false);
 
 		if (StringUtils.isEmpty(userDO.getMobile())) {

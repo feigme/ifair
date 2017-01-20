@@ -31,7 +31,15 @@
 		</property>
 	</bean>
 
-	<bean id="restTemplate" class=" org.springframework.web.client.RestTemplate"/>
+	<bean id="httpClientFactory" class="org.springframework.http.client.SimpleClientHttpRequestFactory">
+		<property name="connectTimeout"  value="3000"/>
+		<property name="readTimeout"  value="3000"/>
+	</bean>
+
+	<!--RestTemplate-->
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+		<constructor-arg ref="httpClientFactory"/>
+	</bean>
 
 	<bean id="uicClient" class="com.ifair.uic.client.UicClient">
 		<property name="uicDomain" value="${uic.domain}"/>

@@ -15,6 +15,10 @@ public class BizResult<T> {
 
 	private T t;
 
+	public BizResult() {
+
+	}
+
 	public BizResult(boolean isSuccess) {
 		this.success = isSuccess;
 	}

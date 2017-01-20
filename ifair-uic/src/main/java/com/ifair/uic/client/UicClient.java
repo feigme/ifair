@@ -18,7 +18,8 @@ public class UicClient {
 	private RestTemplate restTemplate;
 
 	public BizResult<Long> register(UserDO userDO) {
-		return restTemplate.postForObject(uicDomain + "/rest/uic/register?userDO={userDO}", null, BizResult.class, JSON.toJSON(userDO));
+		String result = restTemplate.postForObject(uicDomain + "/rest/uic/register?userDO={userDO}", null, String.class, JSON.toJSON(userDO));
+		return JSON.parseObject(result, BizResult.class);
 	}
 
 	public String getUicDomain() {

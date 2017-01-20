@@ -56,7 +56,7 @@
 
 	<!-- sqlSessionFactory配置 -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="mapperLocations" value="classpath*:com/ifair/**/dao/xml/*.xml"/>
+		<property name="mapperLocations" value="classpath:com/ifair/**/dao/xml/*.xml"/>
 		<property name="dataSource" ref="dataSource"/>
 		<property name="plugins">
 			<bean class="com.ifair.common.interceptor.mybatis.PagingInterceptor"/>
@@ -65,6 +65,16 @@
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.ifair.**.mapper"/>
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+
+	<bean id="httpClientFactory" class="org.springframework.http.client.SimpleClientHttpRequestFactory">
+		<property name="connectTimeout"  value="${connectTimeout}"/>
+		<property name="readTimeout"  value="${readTimeout}"/>
+	</bean>
+
+	<!--RestTemplate-->
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+		<constructor-arg ref="httpClientFactory"/>
 	</bean>
 
 </beans>

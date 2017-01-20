@@ -49,6 +49,17 @@
             <artifactId>dozer</artifactId>
         </dependency>
 
+        <!-- LOGGING begin -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <!-- LOGGING end -->
+
         <!-- spring 核心包 -->
         <dependency>
             <groupId>org.springframework</groupId>

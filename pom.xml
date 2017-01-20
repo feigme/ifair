@@ -23,8 +23,8 @@
         <mybatis.spring.version>1.1.1</mybatis.spring.version>
         <mysql.version>5.1.23</mysql.version>
         <shiro.version>1.2.1</shiro.version>
-        <slf4j.version>1.7.0</slf4j.version>
-        <log4j.version>1.2.17</log4j.version>
+        <slf4j.version>1.7.22</slf4j.version>
+        <logback.version>1.1.8</logback.version>
     </properties>
 
     <dependencyManagement>
@@ -186,50 +186,17 @@
             </dependency>
 
             <!-- LOGGING begin -->
-            <!-- slf4j -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+                <optional>true</optional>
             </dependency>
-
-            <!-- slf4j-log4j绑定 -->
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
-                <scope>runtime</scope>
-            </dependency>
-
-            <!-- common-logging 实际调用slf4j -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jcl-over-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-                <scope>runtime</scope>
-            </dependency>
-
-            <!-- java.util.logging 实际调用slf4j -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jul-to-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-                <scope>runtime</scope>
-            </dependency>
-
-            <!-- log4j -->
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${log4j.version}</version>
-            </dependency>
-
-            <!-- log4jdbc -->
-            <dependency>
-                <groupId>org.lazyluke</groupId>
-                <artifactId>log4jdbc-remix</artifactId>
-                <version>0.2.7</version>
-                <scope>runtime</scope>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+                <optional>true</optional>
             </dependency>
             <!-- LOGGING end -->
 

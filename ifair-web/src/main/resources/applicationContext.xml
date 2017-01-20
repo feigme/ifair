@@ -31,6 +31,8 @@
 		</property>
 	</bean>
 
+	<bean id="restTemplate" class=" org.springframework.web.client.RestTemplate"/>
+
 	<bean id="uicClient" class="com.ifair.uic.client.UicClient">
 		<property name="uicDomain" value="${uic.domain}"/>
 	</bean>

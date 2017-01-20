@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,6 +50,9 @@ public class UserController {
 
     @Value("${web.domain}")
     private String webDomain;
+
+    @Resource
+    private UicClient uicClient;
 
 
     @RequestMapping("/login")
@@ -133,7 +137,6 @@ public class UserController {
         Mapper mapper = new DozerBeanMapper();
         UserDO userDO = mapper.map(cmd, UserDO.class);
 
-        UicClient uicClient = new UicClient();
         uicClient.register(userDO);
 
         return "views/register";

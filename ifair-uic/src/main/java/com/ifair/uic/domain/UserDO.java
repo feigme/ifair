@@ -1,4 +1,4 @@
-package com.ifair.user.domain;
+package com.ifair.uic.domain;
 
 import com.ifair.base.BaseDO;
 import java.util.Date;

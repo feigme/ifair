@@ -1,6 +1,8 @@
-package com.ifair.user.mapper;
+package com.ifair.uic.mapper;
 
-import com.ifair.user.domain.UserDO;
+import com.ifair.uic.domain.UserDO;
+
+import java.util.List;
 
 public interface UserDOMapper {
     int deleteByPrimaryKey(Long id);
@@ -14,4 +16,6 @@ public interface UserDOMapper {
     int updateByPrimaryKeySelective(UserDO record);
 
     int updateByPrimaryKey(UserDO record);
+
+    List<UserDO> findUserByMobile(String mobile);
 }

@@ -1,10 +1,10 @@
 package com.ifair.oauth2.oltu.web.controller;
 
+import com.ifair.common.security.DesCbcSecurity;
 import com.ifair.oauth2.oltu.model.OauthAuthorize;
 import com.ifair.oauth2.oltu.model.OauthClient;
 import com.ifair.oauth2.oltu.model.OauthUser;
 import com.ifair.oauth2.oltu.service.OauthClientService;
-import com.ifair.oauth2.oltu.utils.DesCbcSecurity;
 import com.ifair.oauth2.oltu.utils.OauthUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -114,7 +113,7 @@ public class AuthzController {
 				// 用户登录
 				if (!validateOAuth2Pwd(request, response)) {
 					// 登录失败跳转到登陆页
-					return "views/oauth2/login";
+					return "views/login";
 				}
 				oauthUser = (OauthUser) session.getAttribute("USER_SESSION_KEY");
 			}

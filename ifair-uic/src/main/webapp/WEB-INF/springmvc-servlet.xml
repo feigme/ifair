@@ -10,17 +10,9 @@
 
 	<mvc:annotation-driven ignore-default-model-on-redirect="true" />
 
-	<context:component-scan base-package="com.ifair.web" use-default-filters="false">
+	<context:component-scan base-package="com.ifair" use-default-filters="false">
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
 	</context:component-scan>
-
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="locations">
-			<list>
-				<value>classpath:application.properties</value>
-			</list>
-		</property>
-	</bean>
 	
 	<bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
 		<property name="resourceLoaderPath" value="/WEB-INF/velocity/" />
@@ -68,5 +60,4 @@
 	<mvc:resources mapping="/img/**" location="/resources/img/" />
 	<mvc:resources mapping="/excel/**" location="/resources/excel/" />
 	<mvc:resources mapping="/download/**" location="/resources/download/" />
-
 </beans>

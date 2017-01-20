@@ -2,6 +2,10 @@ package com.ifair.web.user.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.ifair.uic.client.UicClient;
+import com.ifair.uic.domain.UserDO;
+import com.ifair.web.user.command.RegisterCommand;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthBearerClientRequest;
@@ -11,15 +15,22 @@ import org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse;
 import org.apache.oltu.oauth2.client.response.OAuthResourceResponse;
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
+import org.dozer.DozerBeanMapper;
+import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 /**
  * Created by feiying on 16/12/20.
@@ -100,6 +111,32 @@ public class UserController {
         request.getSession().setAttribute("userName", jsonObject.get("name"));
 
         return "redirect:" + webDomain + "/index";
+    }
+
+    @RequestMapping("/register")
+    public String register(Model model) {
+
+        return "views/register";
+    }
+
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    public String doRegister(Model model, @Valid @ModelAttribute("uic") RegisterCommand cmd, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "views/register";
+        } else {
+            if (!StringUtils.equals(cmd.getPassword(), cmd.getConfirmPassword())) {
+                bindingResult.rejectValue("password", "", "密码不一致!");
+                return "views/register";
+            }
+        }
+
+        Mapper mapper = new DozerBeanMapper();
+        UserDO userDO = mapper.map(cmd, UserDO.class);
+
+        UicClient uicClient = new UicClient();
+        uicClient.register(userDO);
+
+        return "views/register";
     }
 
 }

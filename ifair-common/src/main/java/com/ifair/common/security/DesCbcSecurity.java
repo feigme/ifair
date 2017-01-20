@@ -1,4 +1,4 @@
-package com.ifair.oauth2.oltu.utils;
+package com.ifair.common.security;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;

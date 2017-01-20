@@ -31,4 +31,9 @@
 		</property>
 	</bean>
 
+	<bean id="uicClient" class="com.ifair.uic.client.UicClient">
+		<property name="uicDomain" value="${uic.domain}"/>
+	</bean>
+
+
 </beans>

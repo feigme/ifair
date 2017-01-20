@@ -3,6 +3,9 @@ package com.ifair.uic.client;
 import com.alibaba.fastjson.JSON;
 import com.ifair.base.BizResult;
 import com.ifair.uic.domain.UserDO;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -18,7 +21,10 @@ public class UicClient {
 	private RestTemplate restTemplate;
 
 	public BizResult<Long> register(UserDO userDO) {
-		String result = restTemplate.postForObject(uicDomain + "/rest/uic/register?userDO={userDO}", null, String.class, JSON.toJSON(userDO));
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
+		HttpEntity<String> entity = new HttpEntity<>(JSON.toJSONString(userDO), headers);
+		String result = restTemplate.postForObject(uicDomain + "/rest/uic/register", entity, String.class);
 		return JSON.parseObject(result, BizResult.class);
 	}
 

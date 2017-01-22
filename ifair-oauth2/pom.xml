@@ -8,9 +8,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ifair-oltu-oauth2</artifactId>
+    <artifactId>ifair-oauth2</artifactId>
     <packaging>war</packaging>
-    <name>ifair-oltu-oauth2</name>
+    <name>ifair-oauth2</name>
 
     <dependencies>
 
@@ -18,6 +18,15 @@
             <groupId>com.ifair</groupId>
             <artifactId>ifair-common</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ifair</groupId>
+            <artifactId>ifair-uic</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>compile</scope>
+            <classifier>client</classifier>
         </dependency>
 
         <dependency>
@@ -163,7 +172,7 @@
     </dependencies>
 
     <build>
-        <finalName>ifair-oltu-oauth2</finalName>
+        <finalName>ifair-oauth2</finalName>
 
         <pluginManagement>
             <plugins>

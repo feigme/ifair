@@ -12,7 +12,7 @@
         <module>ifair-web</module>
         <module>ifair-admin</module>
         <module>ifair-common</module>
-        <module>ifair-oltu-oauth2</module>
+        <module>ifair-oauth2</module>
         <module>ifair-uic</module>
     </modules>
 

@@ -197,13 +197,13 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
+                    <version>2.3</version>
                     <configuration>
                         <!--注意增加这两行，在打包时相关的类会被独立打成jar-->
                         <attachClasses>true</attachClasses>
                         <classesClassifier>client</classesClassifier>
                     </configuration>
-                    <version>2.3</version>
-                    <executions></executions>
+
                 </plugin>
             </plugins>
 

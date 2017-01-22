@@ -25,6 +25,15 @@
         </dependency>
 
         <dependency>
+            <groupId>com.ifair</groupId>
+            <artifactId>ifair-uic</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>compile</scope>
+            <classifier>client</classifier>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>

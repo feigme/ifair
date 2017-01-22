@@ -18,12 +18,15 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- idea本地开发时需要 -->
         <dependency>
             <groupId>com.ifair</groupId>
             <artifactId>ifair-uic</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <type>war</type>
         </dependency>
 
+        <!-- 线上依赖的jar -->
         <dependency>
             <groupId>com.ifair</groupId>
             <artifactId>ifair-uic</artifactId>

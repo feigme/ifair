@@ -49,4 +49,9 @@ public class UserServiceImpl implements UserService {
 		List<UserDO> list = userDOMapper.findUserByMobile(mobile);
 		return new BizResult<>(true).setData(list);
 	}
+
+	@Override
+	public BizResult<UserDO> findUserById(Long id) {
+		return new BizResult<>(true).setData(userDOMapper.selectByPrimaryKey(id));
+	}
 }

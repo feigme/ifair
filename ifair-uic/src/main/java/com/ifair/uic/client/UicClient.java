@@ -11,6 +11,8 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 
 /**
+ * 外部工程使用
+ * 
  * Created by feiying on 17/1/19.
  */
 public class UicClient {
@@ -20,11 +22,22 @@ public class UicClient {
 	@Resource
 	private RestTemplate restTemplate;
 
+	/**
+	 * 注册功能
+	 * 
+	 * @param userDO
+	 * @return
+	 */
 	public BizResult<Long> register(UserDO userDO) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
 		HttpEntity<String> entity = new HttpEntity<>(JSON.toJSONString(userDO), headers);
 		String result = restTemplate.postForObject(uicDomain + "/rest/uic/register", entity, String.class);
+		return JSON.parseObject(result, BizResult.class);
+	}
+
+	public BizResult<UserDO> findUserById(Long userId) {
+		String result = restTemplate.getForObject(uicDomain + "/rest/uic/user/{userId}", String.class, userId);
 		return JSON.parseObject(result, BizResult.class);
 	}
 

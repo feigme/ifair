@@ -26,4 +26,11 @@ public interface UserService {
 	 */
 	BizResult<List<UserDO>> findUserByMobile(String mobile);
 
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	BizResult<UserDO> findUserById(Long id);
+
 }

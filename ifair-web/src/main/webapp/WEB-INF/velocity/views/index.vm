@@ -1,6 +1,6 @@
 <html>
 <body>
-<h2>Hello World! web</h2>
+<h2>Hello World! web $!{test}</h2>
 #if($!userName)
     $!userName
 <a href="/logout">退出</a>

@@ -1,4 +1,4 @@
-package com.ifair.web.index.user.command;
+package com.ifair.user.command;
 
 import com.ifair.base.BaseCommand;
 import org.hibernate.validator.constraints.Length;

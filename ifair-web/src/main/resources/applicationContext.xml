@@ -31,7 +31,7 @@
 		</property>
 	</bean>
 
-	<!--方式二、使用httpclient的实现，带连接池-->
+	<!--使用httpclient的实现，带连接池-->
 	<bean id="ky.pollingConnectionManager" class="org.apache.http.impl.conn.PoolingHttpClientConnectionManager">
 		<!--整个连接池的并发-->
 		<property name="maxTotal" value="200" />

@@ -20,4 +20,9 @@ public class IndexController {
 		return mav;
 	}
 
+	@RequestMapping("/unauthorized")
+	public String unauthorized(){
+		return "views/unauthorized";
+	}
+
 }

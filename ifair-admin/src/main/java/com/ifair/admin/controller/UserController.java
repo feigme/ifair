@@ -11,6 +11,9 @@ import org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse;
 import org.apache.oltu.oauth2.client.response.OAuthResourceResponse;
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,11 +57,7 @@ public class UserController {
 
     @RequestMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
-        request.getSession().invalidate();
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            setCookies(cookie.getName(), null, 0, response);
-        }
+        SecurityUtils.getSubject().logout();
         return "redirect:/index";
     }
 
@@ -97,7 +96,12 @@ public class UserController {
         log.info("accessToken: " + accessToken + " refreshToken: " + refreshToken + " expiresIn: " + expiresIn + " resBody: " + resBody);
 
         JSONObject jsonObject = JSON.parseObject(resBody);
-        request.getSession().setAttribute("userName", jsonObject.get("name"));
+        //request.getSession().setAttribute("userName", jsonObject.get("name"));
+
+        //获取当前的Subject
+        Subject currentUser = SecurityUtils.getSubject();
+        UsernamePasswordToken upToken = new UsernamePasswordToken(jsonObject.getString("name"), "aaa");
+        currentUser.login(upToken);
 
         return "redirect:" + adminDomain + "/index";
     }

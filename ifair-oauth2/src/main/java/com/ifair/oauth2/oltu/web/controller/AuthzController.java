@@ -1,11 +1,11 @@
 package com.ifair.oauth2.oltu.web.controller;
 
 import com.ifair.common.security.DesCbcSecurity;
-import com.ifair.oauth2.oltu.model.OauthAuthorize;
-import com.ifair.oauth2.oltu.model.OauthClient;
-import com.ifair.oauth2.oltu.model.OauthUser;
+import com.ifair.oauth2.oltu.domain.OauthAuthorizeDO;
+import com.ifair.oauth2.oltu.domain.OauthClientDO;
 import com.ifair.oauth2.oltu.service.OauthClientService;
 import com.ifair.oauth2.oltu.utils.OauthUtils;
+import com.ifair.uic.domain.UserDO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,9 +38,10 @@ public class AuthzController {
 
 	public static final Logger log = LoggerFactory.getLogger(AuthzController.class);
 
-	private OauthClientService oauthClientService = new OauthClientService();
+	@Resource
+	private OauthClientService oauthClientService;
 
-	public static final String COOKIE_SESSION_KEY = "csid";
+	public static final String COOKIE_SESSION_KEY = "sid";
 
 	/*
 	 * * 构建OAuth2授权请求 [需要client_id与redirect_uri绝对地址]
@@ -81,7 +83,7 @@ public class AuthzController {
 			}
 
 			// 查询客户端Appkey应用的信息
-			OauthClient oauthClient =  oauthClientService.findClientByClientId(oauthRequest.getClientId());
+			OauthClientDO oauthClient =  oauthClientService.findClientByClientId(oauthRequest.getClientId());
 
 			// 验证appkey是否正确
 			if (!validateOAuth2AppKey(oauthClient)) {
@@ -102,10 +104,10 @@ public class AuthzController {
 			model.addAttribute("scope", oauthRequest.getScopes());
 
 			// Session中的用户信息
-			OauthUser oauthUser = (OauthUser) session.getAttribute("USER_SESSION_KEY");
+			UserDO oauthUser = (UserDO) session.getAttribute("USER_SESSION_KEY");
 			if (oauthUser == null) {
 				// 缓存中的用户信息
-				oauthUser = (OauthUser) getCacheBySessionId(request, "oauth_");
+				oauthUser = (UserDO) getCacheBySessionId(request, "oauth_");
 			}
 
 			// 判断用户是否已登录
@@ -115,11 +117,11 @@ public class AuthzController {
 					// 登录失败跳转到登陆页
 					return "views/login";
 				}
-				oauthUser = (OauthUser) session.getAttribute("USER_SESSION_KEY");
+				oauthUser = (UserDO) session.getAttribute("USER_SESSION_KEY");
 			}
 
 			// 判断用户是否已经授权
-			OauthAuthorize oauthAuthorize = oauthClientService.findAuthorize(oauthClient, oauthUser);
+			OauthAuthorizeDO oauthAuthorize = oauthClientService.findAuthorize(oauthClient, oauthUser);
 			if (oauthAuthorize == null) {
 				// 判断此次请求是否是用户授权
 				if (request.getParameter("action") != null && request.getParameter("action").equalsIgnoreCase("authorize")) {
@@ -172,7 +174,7 @@ public class AuthzController {
 		}
 
 		try {
-			OauthUser oauthUser = oauthClientService.loginCheck(name, pwd);
+			UserDO oauthUser = oauthClientService.loginCheck(name, pwd);
 			if (oauthUser != null) {
 				// 登录成功
 				request.getSession().setAttribute("USER_SESSION_KEY", oauthUser);
@@ -198,7 +200,7 @@ public class AuthzController {
 	 * @param oauthClient
 	 * @return
 	 */
-	private boolean validateOAuth2AppKey(OauthClient oauthClient) {
+	private boolean validateOAuth2AppKey(OauthClientDO oauthClient) {
 		return oauthClient != null;
 	}
 

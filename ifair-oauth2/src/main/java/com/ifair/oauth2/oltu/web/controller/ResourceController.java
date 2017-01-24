@@ -1,8 +1,11 @@
 package com.ifair.oauth2.oltu.web.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.ifair.oauth2.oltu.model.OauthUser;
+import com.alibaba.fastjson.serializer.SimplePropertyPreFilter;
+import com.ifair.base.BizResult;
 import com.ifair.oauth2.oltu.service.OauthClientService;
+import com.ifair.uic.client.UicClient;
+import com.ifair.uic.domain.UserDO;
 import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
@@ -13,11 +16,11 @@ import org.apache.oltu.oauth2.rs.request.OAuthAccessResourceRequest;
 import org.apache.oltu.oauth2.rs.response.OAuthRSResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.hash.HashMapper;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -33,7 +36,11 @@ public class ResourceController {
 
 	private static Logger logger = LoggerFactory.getLogger(ResourceController.class);
 
-	private OauthClientService oauthClientService = new OauthClientService();
+	@Resource
+	private OauthClientService oauthClientService;
+
+	@Resource
+	private UicClient uicClient;
 
 	@RequestMapping(value = "/get_resource", produces = "application/json;charset=utf-8")
 	@ResponseBody
@@ -56,21 +63,31 @@ public class ResourceController {
 			}
 
 			Long userId = (Long) oauthClientService.get(accessToken);
-			OauthUser oauthUser = oauthClientService.findUserById(userId);
+			BizResult<UserDO> userDOBizResult = uicClient.findUserById(userId);
+			if (!userDOBizResult.getSuccess()){
+				OAuthResponse oauthResponse = OAuthRSResponse
+						.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+						.setRealm("user not found")
+						.buildHeaderMessage();
+				response.addDateHeader(OAuth.HeaderType.WWW_AUTHENTICATE, Long.parseLong(oauthResponse.getHeader(OAuth.HeaderType.WWW_AUTHENTICATE)));
+				return "";
+			}
+			UserDO oauthUser = userDOBizResult.getData();
 
-			Map<String, Object> map = new HashMap();
-			map.put("name", oauthUser.getUserName());
-			map.put("id", oauthUser.getId());
-			map.put("age", 20);
-			return JSON.toJSONString(map);
+			// json屏蔽一些字段
+			SimplePropertyPreFilter simplePropertyPreFilter = new SimplePropertyPreFilter();
+			simplePropertyPreFilter.getExcludes().add("password");
+			simplePropertyPreFilter.getExcludes().add("salt");
+			return JSON.toJSONString(oauthUser, simplePropertyPreFilter);
 		} catch (OAuthProblemException ex) {
 			logger.error("ResourceController OAuthProblemException : " + ex.getMessage());
-			OAuthResponse oauthResponse = OAuthRSResponse.errorResponse(HttpServletResponse.SC_UNAUTHORIZED).setRealm("get_resource exception").buildHeaderMessage();
+			OAuthResponse oauthResponse = OAuthRSResponse
+					.errorResponse(HttpServletResponse.SC_UNAUTHORIZED)
+					.setRealm("get_resource exception")
+					.buildHeaderMessage();
 			response.addDateHeader(OAuth.HeaderType.WWW_AUTHENTICATE, Long.parseLong(oauthResponse.getHeader(OAuth.HeaderType.WWW_AUTHENTICATE)));
 		}
 		return "";
 	}
-
-
 
 }

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -34,7 +35,8 @@ public class TokenController {
 
 	public static final Logger log = LoggerFactory.getLogger(TokenController.class);
 
-	private OauthClientService oauthClientService = new OauthClientService();
+	@Resource
+	private OauthClientService oauthClientService;
 
 	/**
 	 * 认证服务器申请令牌(AccessToken) [验证client_id、client_secret、auth code的正确性或更新令牌 refresh_token]

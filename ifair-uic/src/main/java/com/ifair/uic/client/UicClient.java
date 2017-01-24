@@ -1,6 +1,7 @@
 package com.ifair.uic.client;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.ifair.base.BizResult;
 import com.ifair.uic.domain.UserDO;
 import org.springframework.http.HttpEntity;
@@ -35,12 +36,12 @@ public class UicClient {
         headers.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
         HttpEntity<String> entity = new HttpEntity<>(JSON.toJSONString(userDO), headers);
         String result = restTemplate.postForObject(uicDomain + "/rest/uic/register", entity, String.class);
-        return JSON.parseObject(result, BizResult.class);
+        return JSON.parseObject(result, new TypeReference<BizResult<Long>>(){});
     }
 
     public BizResult<UserDO> findUserById(Long userId) {
         String result = restTemplate.getForObject(uicDomain + "/rest/uic/user/{userId}", String.class, userId);
-        return JSON.parseObject(result, BizResult.class);
+        return JSON.parseObject(result, new TypeReference<BizResult<UserDO>>(){});
     }
 
     public BizResult<UserDO> checkPassword(String mobile, String password) {
@@ -51,7 +52,7 @@ public class UicClient {
         map.add("password", password);
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
         String result = restTemplate.postForObject(uicDomain + "/rest/uic/user/authentication/pw", entity, String.class);
-        return JSON.parseObject(result, BizResult.class);
+        return JSON.parseObject(result, new TypeReference<BizResult<UserDO>>(){});
     }
 
     public String getUicDomain() {

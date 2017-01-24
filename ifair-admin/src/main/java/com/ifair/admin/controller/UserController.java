@@ -100,7 +100,7 @@ public class UserController {
 
         //获取当前的Subject
         Subject currentUser = SecurityUtils.getSubject();
-        UsernamePasswordToken upToken = new UsernamePasswordToken(jsonObject.getString("name"), "aaa");
+        UsernamePasswordToken upToken = new UsernamePasswordToken(jsonObject.getString("mobile"), "aaa");
         currentUser.login(upToken);
 
         return "redirect:" + adminDomain + "/index";

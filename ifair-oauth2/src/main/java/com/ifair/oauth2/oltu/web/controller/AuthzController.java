@@ -195,14 +195,14 @@ public class AuthzController {
 			}
 			return false;
 		} catch (Exception ex) {
-			log.error("validateOAuth2Pwd Exception: " + ex.getMessage());
+			log.error("validateOAuth2Pwd Exception: " + ex.getMessage(), ex);
 			return false;
 		}
 	}
 
 	/**
 	 * 验证ClientID 是否正确
-	 * 
+	 *
 	 * @param oauthClient
 	 * @return
 	 */
@@ -269,7 +269,7 @@ public class AuthzController {
 		setCookies(key, value, 0, resp);
 		setCookies(key, value, rememberLogin ? 3600 * 24 * rememberDays : 3600 * 24, resp, req, true);
 	}
-	
+
 	private void setCookies(String key, String value, int maxAge, HttpServletResponse response) {
 		setCookies(key, value, maxAge, response, null, false);
 	}

@@ -44,10 +44,10 @@ public class UicClient {
 	}
 
 	public BizResult<UserDO> checkPassword(String mobile, String password) {
-		MultiValueMap<String, Object> urlVariables = new LinkedMultiValueMap<String, Object>();
+		MultiValueMap<String, Object> urlVariables = new LinkedMultiValueMap<>();
 		urlVariables.add("mobile", mobile);
 		urlVariables.add("password", password);
-		String result = restTemplate.getForObject(uicDomain + "/rest/uic/user/authentication/pw", String.class, urlVariables);
+		String result = restTemplate.postForObject(uicDomain + "/rest/uic/user/authentication/pw", null, String.class, urlVariables);
 		return JSON.parseObject(result, BizResult.class);
 	}
 

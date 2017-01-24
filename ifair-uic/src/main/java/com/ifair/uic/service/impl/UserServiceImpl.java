@@ -63,8 +63,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		try {
-			String salt = CommonUsage.generateSlat(6);
-			String encrptPassword = (DesCbcSecurity.encode(DesCbcSecurity.md5(password) + DesCbcSecurity.md5(salt))).toUpperCase();
+			String encrptPassword = (DesCbcSecurity.encode(DesCbcSecurity.md5(password) + DesCbcSecurity.md5(userDO.getSalt()))).toUpperCase();
 			if (StringUtils.equals(encrptPassword, userDO.getPassword())) {
 				return new BizResult<>(true).setData(userDO);
 			}

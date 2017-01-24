@@ -14,48 +14,51 @@ import javax.annotation.Resource;
 
 /**
  * 外部工程使用
- * 
+ * <p>
  * Created by feiying on 17/1/19.
  */
 public class UicClient {
 
-	private String uicDomain;
+    private String uicDomain;
 
-	@Resource
-	private RestTemplate restTemplate;
+    @Resource
+    private RestTemplate restTemplate;
 
-	/**
-	 * 注册功能, 参数用json传递
-	 * 
-	 * @param userDO
-	 * @return
-	 */
-	public BizResult<Long> register(UserDO userDO) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
-		HttpEntity<String> entity = new HttpEntity<>(JSON.toJSONString(userDO), headers);
-		String result = restTemplate.postForObject(uicDomain + "/rest/uic/register", entity, String.class);
-		return JSON.parseObject(result, BizResult.class);
-	}
+    /**
+     * 注册功能, 参数用json传递
+     *
+     * @param userDO
+     * @return
+     */
+    public BizResult<Long> register(UserDO userDO) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
+        HttpEntity<String> entity = new HttpEntity<>(JSON.toJSONString(userDO), headers);
+        String result = restTemplate.postForObject(uicDomain + "/rest/uic/register", entity, String.class);
+        return JSON.parseObject(result, BizResult.class);
+    }
 
-	public BizResult<UserDO> findUserById(Long userId) {
-		String result = restTemplate.getForObject(uicDomain + "/rest/uic/user/{userId}", String.class, userId);
-		return JSON.parseObject(result, BizResult.class);
-	}
+    public BizResult<UserDO> findUserById(Long userId) {
+        String result = restTemplate.getForObject(uicDomain + "/rest/uic/user/{userId}", String.class, userId);
+        return JSON.parseObject(result, BizResult.class);
+    }
 
-	public BizResult<UserDO> checkPassword(String mobile, String password) {
-		MultiValueMap<String, Object> urlVariables = new LinkedMultiValueMap<>();
-		urlVariables.add("mobile", mobile);
-		urlVariables.add("password", password);
-		String result = restTemplate.postForObject(uicDomain + "/rest/uic/user/authentication/pw", null, String.class, urlVariables);
-		return JSON.parseObject(result, BizResult.class);
-	}
+    public BizResult<UserDO> checkPassword(String mobile, String password) {
+        HttpHeaders headers = new HttpHeaders();
 
-	public String getUicDomain() {
-		return uicDomain;
-	}
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("mobile", mobile);
+        map.add("password", password);
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
+        String result = restTemplate.postForObject(uicDomain + "/rest/uic/user/authentication/pw", entity, String.class);
+        return JSON.parseObject(result, BizResult.class);
+    }
 
-	public void setUicDomain(String uicDomain) {
-		this.uicDomain = uicDomain;
-	}
+    public String getUicDomain() {
+        return uicDomain;
+    }
+
+    public void setUicDomain(String uicDomain) {
+        this.uicDomain = uicDomain;
+    }
 }

@@ -47,7 +47,7 @@ public class UicClient {
 		MultiValueMap<String, Object> urlVariables = new LinkedMultiValueMap<String, Object>();
 		urlVariables.add("mobile", mobile);
 		urlVariables.add("password", password);
-		String result = restTemplate.getForObject(uicDomain + "/rest/uic/user/authentication/pw", null, String.class, urlVariables);
+		String result = restTemplate.getForObject(uicDomain + "/rest/uic/user/authentication/pw", String.class, urlVariables);
 		return JSON.parseObject(result, BizResult.class);
 	}
 

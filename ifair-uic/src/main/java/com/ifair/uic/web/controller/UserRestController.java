@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,8 +41,8 @@ public class UserRestController {
 			return JSON.toJSONString(bizResult.setMessage("密码为空!"));
 		}
 
-		BizResult<List<UserDO>> listBizResult = userService.findUserByMobile(userDO.getMobile());
-		if (listBizResult.getSuccess() && listBizResult.getData().size() > 0) {
+		BizResult<UserDO> listBizResult = userService.findUserByMobile(userDO.getMobile());
+		if (listBizResult.getSuccess() && listBizResult.getData() != null) {
 			return JSON.toJSONString(bizResult.setMessage("手机号码已被使用!"));
 		}
 
@@ -55,6 +54,13 @@ public class UserRestController {
 	@ResponseBody
 	public String findUserById(@PathVariable Long userId) {
 		BizResult<UserDO> result = userService.findUserById(userId);
+		return JSON.toJSONString(result);
+	}
+
+	@RequestMapping(value = "/user/authentication/pw", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+	@ResponseBody
+	public String checkPassword(@RequestParam String mobile, @RequestParam String password) {
+		BizResult<UserDO> result = userService.checkPassword(mobile, password);
 		return JSON.toJSONString(result);
 	}
 

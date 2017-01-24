@@ -22,8 +22,6 @@ public interface OauthClientService {
 	 */
 	OauthAuthorizeDO findAuthorize(OauthClientDO client, UserDO user);
 
-	UserDO loginCheck(String userName, String password);
-
 	boolean authorize(OauthClientDO client, UserDO user);
 
 	void put(String key, Object value);

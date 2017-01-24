@@ -3,8 +3,6 @@ package com.ifair.uic.service;
 import com.ifair.base.BizResult;
 import com.ifair.uic.domain.UserDO;
 
-import java.util.List;
-
 /**
  * Created by feiying on 17/1/18.
  */
@@ -24,7 +22,7 @@ public interface UserService {
 	 * @param mobile
 	 * @return
 	 */
-	BizResult<List<UserDO>> findUserByMobile(String mobile);
+	BizResult<UserDO> findUserByMobile(String mobile);
 
 	/**
 	 * 
@@ -32,5 +30,14 @@ public interface UserService {
 	 * @return
 	 */
 	BizResult<UserDO> findUserById(Long id);
+
+	/**
+	 * 检查密码
+	 * 
+	 * @param mobile
+	 * @param password
+	 * @return
+	 */
+	BizResult<UserDO> checkPassword(String mobile, String password);
 
 }

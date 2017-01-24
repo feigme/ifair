@@ -1,10 +1,12 @@
 package com.ifair.oauth2.oltu.web.controller;
 
+import com.ifair.base.BizResult;
 import com.ifair.common.security.DesCbcSecurity;
 import com.ifair.oauth2.oltu.domain.OauthAuthorizeDO;
 import com.ifair.oauth2.oltu.domain.OauthClientDO;
 import com.ifair.oauth2.oltu.service.OauthClientService;
 import com.ifair.oauth2.oltu.utils.OauthUtils;
+import com.ifair.uic.client.UicClient;
 import com.ifair.uic.domain.UserDO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
@@ -40,6 +42,9 @@ public class AuthzController {
 
 	@Resource
 	private OauthClientService oauthClientService;
+
+	@Resource
+	private UicClient uicClient;
 
 	public static final String COOKIE_SESSION_KEY = "sid";
 
@@ -174,8 +179,9 @@ public class AuthzController {
 		}
 
 		try {
-			UserDO oauthUser = oauthClientService.loginCheck(name, pwd);
-			if (oauthUser != null) {
+			 BizResult<UserDO> checkBizResult = uicClient.checkPassword(name, pwd);
+			if (checkBizResult.getSuccess() && checkBizResult.getData() != null) {
+				UserDO oauthUser = checkBizResult.getData();
 				// 登录成功
 				request.getSession().setAttribute("USER_SESSION_KEY", oauthUser);
 

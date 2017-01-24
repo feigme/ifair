@@ -1,6 +1,8 @@
 package com.ifair.oauth2.oltu.service.impl;
 
 import com.google.common.collect.Maps;
+import com.ifair.common.security.CommonUsage;
+import com.ifair.common.security.DesCbcSecurity;
 import com.ifair.oauth2.oltu.domain.OauthAuthorizeDO;
 import com.ifair.oauth2.oltu.domain.OauthClientDO;
 import com.ifair.oauth2.oltu.mapper.OauthAuthorizeDOMapper;
@@ -33,11 +35,6 @@ public class OauthClientServiceImpl implements OauthClientService {
 	@Override
 	public OauthAuthorizeDO findAuthorize(OauthClientDO client, UserDO user) {
 		return oauthAuthorizeDOMapper.findOauthAuthorize(user.getId(), client.getId());
-	}
-
-	@Override
-	public UserDO loginCheck(String userName, String password) {
-		return null;
 	}
 
 	@Override

@@ -6,6 +6,8 @@ import com.ifair.uic.domain.UserDO;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -23,7 +25,7 @@ public class UicClient {
 	private RestTemplate restTemplate;
 
 	/**
-	 * 注册功能
+	 * 注册功能, 参数用json传递
 	 * 
 	 * @param userDO
 	 * @return
@@ -38,6 +40,14 @@ public class UicClient {
 
 	public BizResult<UserDO> findUserById(Long userId) {
 		String result = restTemplate.getForObject(uicDomain + "/rest/uic/user/{userId}", String.class, userId);
+		return JSON.parseObject(result, BizResult.class);
+	}
+
+	public BizResult<UserDO> checkPassword(String mobile, String password) {
+		MultiValueMap<String, Object> urlVariables = new LinkedMultiValueMap<String, Object>();
+		urlVariables.add("mobile", mobile);
+		urlVariables.add("password", password);
+		String result = restTemplate.getForObject(uicDomain + "/rest/uic/user/authentication/pw", null, String.class, urlVariables);
 		return JSON.parseObject(result, BizResult.class);
 	}
 

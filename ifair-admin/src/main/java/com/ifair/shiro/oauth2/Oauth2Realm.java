@@ -80,29 +80,4 @@ public class Oauth2Realm extends AuthorizingRealm {
 		return authenticationInfo;
 	}
 
-	private String extractUsername(String code) {
-		try {
-			OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
-			OAuthClientRequest accessTokenRequest = OAuthClientRequest
-					.tokenLocation(accessTokenUrl)
-					.setGrantType(GrantType.AUTHORIZATION_CODE)
-					.setClientId(clientId)
-					.setClientSecret(clientSecret)
-					.setCode(code)
-					.setRedirectURI(redirectUrl)
-					.buildQueryMessage();
-			// 获取access token
-			OAuthAccessTokenResponse oAuthResponse = oAuthClient.accessToken(accessTokenRequest, OAuth.HttpMethod.POST);
-			String accessToken = oAuthResponse.getAccessToken();
-			Long expiresIn = oAuthResponse.getExpiresIn();
-			// 获取user info
-			OAuthClientRequest userInfoRequest = new OAuthBearerClientRequest(userInfoUrl).setAccessToken(accessToken).buildQueryMessage();
-			OAuthResourceResponse resourceResponse = oAuthClient.resource(userInfoRequest, OAuth.HttpMethod.GET, OAuthResourceResponse.class);
-			String username = resourceResponse.getBody();
-			return username;
-		} catch (Exception e) {
-			throw new AuthenticationException(e);
-		}
-	}
-
 }

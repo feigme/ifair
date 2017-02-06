@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:p="http://www.springframework.org/schema/p"
+	   xmlns:task="http://www.springframework.org/schema/task"
+	   xsi:schemaLocation="http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+    http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	">
+
+	<description>Spring公共配置</description>
+
+	<!-- 使用annotation 自动注册bean,并检查@Required,@Autowired的属性已被注入 -->
+	<context:component-scan base-package="com.ifair">
+		<context:exclude-filter type="annotation"
+								expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+	<!-- 定义aspectj -->
+	<!--<aop:aspectj-autoproxy proxy-target-class="true" />-->
+
+	<!-- production环境 -->
+	<bean id="placeholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:application.properties</value>
+				<value>classpath:jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${driver}"/>
+		<property name="url" value="${url}"/>
+		<property name="username" value="${username}"/>
+		<property name="password" value="${password}"/>
+		<property name="initialSize" value="5"/>
+		<property name="maxActive" value="10"/>
+		<property name="maxWait" value="60000"/>
+		<property name="poolPreparedStatements" value="true"/>
+		<property name="validationQuery" value="/* ping */SELECT 1"></property>
+	</bean>
+
+	<!-- 事务处理 -->
+	<bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+	<!-- sqlSessionFactory配置 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="mapperLocations" value="classpath:com/ifair/**/dao/xml/*.xml"/>
+		<property name="dataSource" ref="dataSource"/>
+		<property name="plugins">
+			<bean class="com.ifair.common.interceptor.mybatis.PagingInterceptor"/>
+		</property>
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.ifair.**.mapper"/>
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+
+	<!--使用httpclient的实现，带连接池-->
+	<bean id="ky.pollingConnectionManager" class="org.apache.http.impl.conn.PoolingHttpClientConnectionManager">
+		<!--整个连接池的并发-->
+		<property name="maxTotal" value="200" />
+		<!--每个主机的并发-->
+		<property name="defaultMaxPerRoute" value="50" />
+	</bean>
+
+	<bean id="ky.httpClientBuilder" class="org.apache.http.impl.client.HttpClientBuilder" factory-method="create">
+		<property name="connectionManager" ref="ky.pollingConnectionManager" />
+		<!--开启重试-->
+		<property name="retryHandler">
+			<bean class="org.apache.http.impl.client.DefaultHttpRequestRetryHandler">
+				<constructor-arg value="2"/>
+				<constructor-arg value="true"/>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="ky.httpClient" factory-bean="ky.httpClientBuilder" factory-method="build" />
+
+	<bean id="ky.clientHttpRequestFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+		<constructor-arg ref="ky.httpClient"/>
+		<!--连接超时时间，毫秒-->
+		<property name="connectTimeout" value="5000"/>
+		<!--读写超时时间，毫秒-->
+		<property name="readTimeout" value="10000"/>
+	</bean>
+
+	<!--RestTemplate-->
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+		<constructor-arg ref="ky.clientHttpRequestFactory"/>
+	</bean>
+
+	<bean id="uicClient" class="com.ifair.uic.client.UicClient">
+		<property name="uicDomain" value="${uic.domain}"/>
+	</bean>
+
+</beans>

@@ -1,0 +1,11 @@
+<html>
+<body>
+<h2>register</h2>
+<form method="post">
+    mobile: <input name="mobile" type="text">
+    password: <input name="password" type="password">
+    confirm password: <input name="confirmPassword" type="password">
+    <button type="submit">提交</button>
+</form>
+</body>
+</html>

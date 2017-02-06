@@ -1,9 +1,0 @@
-<html>
-<body>
-<form action="/j_spring_security_check" method="post">
-    <input name="username" type="text">
-    <input name="password" type="password">
-    <button type="submit">提交</button>
-</form>
-</body>
-</html>

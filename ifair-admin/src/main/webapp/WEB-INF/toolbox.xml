@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 =============================================================
-  @(#) toolbox.xml
+  @(#) toolbox.com.ifair.uic.dao.xml
 =============================================================
 -->
 
@@ -31,6 +31,12 @@
         <key>escTool</key>
         <scope>application</scope>
         <class>org.apache.velocity.tools.generic.EscapeTool</class>
+    </tool>
+
+    <tool>
+        <key>shiroTool</key>
+        <scope>application</scope>
+        <class>com.ifair.shiro.tools.ShiroTool</class>
     </tool>
     
 </toolbox>

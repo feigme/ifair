@@ -68,4 +68,5 @@
 	<mvc:resources mapping="/img/**" location="/resources/img/" />
 	<mvc:resources mapping="/excel/**" location="/resources/excel/" />
 	<mvc:resources mapping="/download/**" location="/resources/download/" />
+
 </beans>

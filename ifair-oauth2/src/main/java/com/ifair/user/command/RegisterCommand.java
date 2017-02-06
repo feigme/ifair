@@ -4,12 +4,15 @@ import com.ifair.base.BaseCommand;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.Pattern;
+
 /**
  * Created by feiying on 17/1/18.
  */
 public class RegisterCommand extends BaseCommand {
 
 	@NotBlank(message = "手机号码为空!")
+	@Pattern(regexp = "^1[34578]\\d{9}$", message = "手机号码格式有误!")
 	private String mobile;
 	@NotBlank(message = "密码为空!")
 	@Length(min = 6, max = 20, message = "密码长度要在6~20")

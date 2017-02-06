@@ -8,7 +8,10 @@ import org.apache.shiro.SecurityUtils;
 public class ShiroTool {
 
 	public static final String getUserName() {
-		return SecurityUtils.getSubject().getPrincipal().toString();
+		if (SecurityUtils.getSubject().getPrincipal() != null) {
+			return SecurityUtils.getSubject().getPrincipal().toString();
+		}
+		return null;
 	}
 
 }

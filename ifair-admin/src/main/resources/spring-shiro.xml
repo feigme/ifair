@@ -53,6 +53,8 @@
                 /favicon.ico=anon
 
                 /error/**=anon
+                /index=anon
+                /logout=anon
                 /oauth_callback=anon
 
                 /**=authc

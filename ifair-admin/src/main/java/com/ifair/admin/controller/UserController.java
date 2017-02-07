@@ -58,6 +58,10 @@ public class UserController {
     @RequestMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityUtils.getSubject().logout();
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            setCookies(cookie.getName(), null, 0, response);
+        }
         return "redirect:/index";
     }
 

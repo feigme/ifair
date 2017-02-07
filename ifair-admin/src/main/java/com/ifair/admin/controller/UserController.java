@@ -60,7 +60,11 @@ public class UserController {
         SecurityUtils.getSubject().logout();
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-            setCookies(cookie.getName(), null, 0, response);
+//            setCookies(cookie.getName(), null, 0, response);
+            cookie.setValue(null);
+            cookie.setMaxAge(0);// 立即销毁cookie
+            cookie.setPath("/");
+            response.addCookie(cookie);
         }
         return "redirect:/index";
     }

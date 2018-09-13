@@ -51,7 +51,7 @@ public class UicClient {
         map.add("mobile", mobile);
         map.add("password", password);
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
-        String result = restTemplate.postForObject(uicDomain + "/rest/uic/user/authentication/pw", entity, String.class);
+        String result = restTemplate.postForObject(uicDomain + "/rest/uic/user/password/check", entity, String.class);
         return JSON.parseObject(result, new TypeReference<BizResult<UserDO>>(){});
     }
 

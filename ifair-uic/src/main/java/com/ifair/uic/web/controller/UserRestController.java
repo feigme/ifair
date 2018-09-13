@@ -57,7 +57,7 @@ public class UserRestController {
 		return JSON.toJSONString(result);
 	}
 
-	@RequestMapping(value = "/user/authentication/pw", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+	@RequestMapping(value = "/user/password/check", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
 	@ResponseBody
 	public String checkPassword(@RequestParam String mobile, @RequestParam String password) {
 		BizResult<UserDO> result = userService.checkPassword(mobile, password);
